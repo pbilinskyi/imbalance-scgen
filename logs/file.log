@@ -1,0 +1,5 @@
+2023-05-12 18:26:36,683 - [INFO] >> [STARTED] experiments_balance.py launched.
+2023-05-12 18:26:36,683 - [INFO] >> 	[STARTED] Experiment undersampling
+2023-05-12 18:26:36,683 - [INFO] >> 		For balance_rate_threshold = 0.2
+2023-05-12 18:26:36,736 - [INFO] >> 			 Iteration 0
+2023-05-12 18:26:37,200 - [INFO] >> 				 Leaving out cell type NK
