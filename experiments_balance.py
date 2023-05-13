@@ -150,7 +150,7 @@ def balance_control_and_stimulated(adata, balance_func, **kwargs):
     return adata_balanced
 
 
-def run_balanced_experiment(method, results_dir, **balancing_kwargs):
+def run_balanced_experiment(method, results_dir, iteration, **balancing_kwargs):
     if method == 'undersampling':
         balance_func = balance_undersample
     elif method == 'oversampling':
@@ -159,47 +159,48 @@ def run_balanced_experiment(method, results_dir, **balancing_kwargs):
         balance_func = balance_mixed_under_over_sample
 
     np.random.seed(43)
-    n_repeat_experiment = 3
 
     adata = get_adata('train_kang')
-    for i in range(n_repeat_experiment):
-        logging.info(f'\t\t\t Iteration {i}')
-        if not os.path.exists(results_dir):
-            os.makedirs(results_dir)
+    if not os.path.exists(results_dir):
+        os.makedirs(results_dir)
 
-        adata_balanced = balance_control_and_stimulated(adata, balance_func=balance_func, **balancing_kwargs)
-        plot_cell_type_distribution(adata=adata_balanced, save_to=os.path.join(results_dir, 'dataset.png'))
+    adata_balanced = balance_control_and_stimulated(adata, balance_func=balance_func, **balancing_kwargs)
+    plot_cell_type_distribution(adata=adata_balanced, save_to=os.path.join(results_dir, 'dataset.png'))
 
-        validation_cell_types = ['NK', 'Dendritic', 'FCGR3A+Mono', 'CD4T']
-        for cell_type in validation_cell_types:
-            logging.info(f'\t\t\t\t Leaving out cell type {cell_type}')
-            train_leave_one_out(cell_type=cell_type,
-                                adata=adata_balanced,
-                                save_to_dir=os.path.join(results_dir, f'Iteration {i}' f'leave_out_{cell_type}')
-                                )
+    validation_cell_types = ['NK', 'Dendritic', 'FCGR3A+Mono', 'CD4T']
+    for cell_type in validation_cell_types:
+        logging.info(f'\t\t\t\t Leaving out cell type {cell_type}')
+        train_leave_one_out(cell_type=cell_type,
+                            adata=adata_balanced,
+                            save_to_dir=os.path.join(results_dir, f'leave_out_{cell_type}')
+                            )
 
 
 def run():
+
+    iteration = 2
+    logging.info(f'Iteration {iteration}')
+
     method = 'undersampling'
     logger.info('\t[STARTED] Experiment %s' % method)
     for balance_rate_threshold in [.2, .4, .5, .6, .8, 1]:
         logger.info(f'\t\tFor balance_rate_threshold = {balance_rate_threshold}')
-        results_dir = os.path.join('saved_models', f'experiment_{method}', f'balance_rate_threshold___{balance_rate_threshold}')
-        run_balanced_experiment(method, results_dir, balance_rate_threshold=balance_rate_threshold)
+        results_dir = os.path.join('saved_models', f'experiment_{method}', f'balance_rate_threshold___{balance_rate_threshold}', f'Iteration {iteration}')
+        run_balanced_experiment(method, results_dir, iteration, balance_rate_threshold=balance_rate_threshold)
 
     method = 'oversampling'
     logger.info('\t[STARTED] Experiment %s' % method)
     for balance_rate_threshold in [.2, .4, .5, .6, .8, 1]:
         logger.info(f'\t\tFor balance_rate_threshold = {balance_rate_threshold}')
-        results_dir = os.path.join('saved_models', f'experiment_{method}', f'balance_rate_threshold___{balance_rate_threshold}')
-        run_balanced_experiment(method, results_dir, balance_rate_threshold=balance_rate_threshold)
+        results_dir = os.path.join('saved_models', f'experiment_{method}', f'balance_rate_threshold___{balance_rate_threshold}', f'Iteration {iteration}')
+        run_balanced_experiment(method, results_dir, iteration, balance_rate_threshold=balance_rate_threshold)
 
     method = 'mixed'
     logger.info('\t[STARTED] Experiment %s' % method)
     for class_size in [600, 800, 1000, 1200, 1400, 1800, 2000]:
         logger.info(f'\t\tFor class_size = {class_size}')
-        results_dir = os.path.join('saved_models', f'experiment_{method}', f'class_size___{class_size}')
-        run_balanced_experiment(method, results_dir, balance_rate_threshold=balance_rate_threshold)
+        results_dir = os.path.join('saved_models', f'experiment_{method}', f'class_size___{class_size}', f'Iteration {iteration}')
+        run_balanced_experiment(method, results_dir, iteration, n=class_size)
 
 
 if __name__ == '__main__':
