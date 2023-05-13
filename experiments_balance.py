@@ -158,8 +158,6 @@ def run_balanced_experiment(method, results_dir, iteration, **balancing_kwargs):
     elif method == 'mixed':
         balance_func = balance_mixed_under_over_sample
 
-    np.random.seed(43)
-
     adata = get_adata('train_kang')
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
@@ -179,6 +177,8 @@ def run_balanced_experiment(method, results_dir, iteration, **balancing_kwargs):
 def run():
 
     iteration = 2
+    np.random.seed(43 + iteration)
+
     logging.info(f'Iteration {iteration}')
 
     method = 'undersampling'
